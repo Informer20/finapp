@@ -1,291 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gastos + Ingresos (Autónoma)</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Gastos + Ingresos — SAFE</title>
   <style>
-    :root{
-      --bg:#0f172a; /* slate-900 */
-      --panel:#111827; /* gray-900 */
-      --muted:#94a3b8; /* slate-400 */
-      --text:#f8fafc; /* slate-50 */
-      --accent:#22c55e; /* green-500 */
-      --warn:#ef4444; /* red-500 */
-      --card:#0b1220; /* deep */
-      --chip:#1f2937; /* gray-800 */
-      --yellow:#eab308;
-      --blue:#3b82f6;
-      --violet:#8b5cf6;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:linear-gradient(180deg,var(--bg),#060913);color:var(--text);font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
+    body{margin:0;background:#0b1220;color:#f8fafc;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial}
     .wrap{max-width:1100px;margin:0 auto;padding:16px}
-    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
-    h1{font-size:20px;margin:0;letter-spacing:.3px}
-    .tabs{display:flex;gap:6px;flex-wrap:wrap}
-    .tab{border:1px solid #1f2937;background:var(--panel);color:var(--text);padding:8px 12px;border-radius:999px;cursor:pointer;opacity:.8}
-    .tab.active{border-color:var(--accent);opacity:1}
-    .grid{display:grid;gap:12px}
-    .grid.cols-2{grid-template-columns:repeat(2,1fr)}
-    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
-    @media(max-width:900px){.grid.cols-3{grid-template-columns:1fr}.grid.cols-2{grid-template-columns:1fr}}
-    .card{background:radial-gradient(1200px 300px at -15% -10%, rgba(59,130,246,.07), transparent),linear-gradient(180deg,var(--panel),rgba(2,6,23,.7));border:1px solid #1f2937;border-radius:16px;padding:14px}
-    .card h2{margin:0 0 10px 0;font-size:16px;opacity:.95}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    label{font-size:12px;color:var(--muted)}
-    input, select, textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #243041;background:#0b1220;color:var(--text);outline:none}
-    input[type="number"]{appearance:textfield}
-    button{background:#111827;color:var(--text);border:1px solid #243041;padding:10px 14px;border-radius:12px;cursor:pointer}
-    button.primary{background:linear-gradient(90deg, var(--blue), var(--violet));border:0}
-    button.ghost{background:transparent;border:1px dashed #334155}
-    button.warn{background:var(--warn);border:0}
-    .pill{padding:4px 10px;border-radius:999px;background:var(--chip);font-size:12px;color:#e2e8f0;border:1px solid #1f2937}
-    table{width:100%;border-collapse:collapse;font-size:14px}
-    th,td{padding:8px 8px;border-bottom:1px solid #1f2937;text-align:left}
-    tr:hover td{background:#0a1221}
-    .right{text-align:right}
-    .muted{color:var(--muted)}
-    .ok{color:var(--accent)}
-    .bad{color:var(--warn)}
-    .mono{font-variant-numeric:tabular-nums}
-    .hr{height:1px;background:#1f2937;margin:10px 0}
-    .progress{height:10px;background:#0b1220;border-radius:999px;border:1px solid #1f2937;overflow:hidden}
-    .progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#16a34a)}
-    .tag{display:inline-block;margin:2px 4px 0 0}
-    .footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px}
-    .hint{font-size:12px;color:#a3a3a3}
-    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;border:1px solid #374151;border-radius:6px;padding:1px 6px;background:#0b1220}
-    .bar{height:8px;border-radius:6px;background:#0b1220;border:1px solid #1f2937;overflow:hidden}
-    .bar>em{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#3b82f6)}
-    .flex{display:flex;gap:10px;align-items:center}
+    header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{border:1px solid #1f2937;background:#111827;color:#f8fafc;padding:8px 12px;border-radius:999px;cursor:pointer}
+    .tab.active{border-color:#22c55e}
+    .card{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:14px;margin-top:12px}
+    [hidden]{display:none!important}
+    .muted{color:#94a3b8}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>📒 Gastos + Ingresos <span class="pill">Autónoma</span></h1>
-      <nav class="tabs" id="tabs"></nav>
+      <h1>📒 Gastos + Ingresos <span class="muted">SAFE</span></h1>
+      <nav class="tabs" id="tabs">
+        <!-- JS debería poblar aquí; si no, verás estos enlaces: -->
+        <button class="tab" data-key="resumen">Resumen</button>
+        <button class="tab" data-key="registrar">Registrar</button>
+        <button class="tab" data-key="respaldo">Respaldo</button>
+      </nav>
     </header>
 
-    <!-- Panels -->
     <section id="panel-resumen" class="card" hidden>
       <h2>Resumen</h2>
-      <div class="grid cols-3">
-        <div class="card">
-          <h2>Este mes</h2>
-          <div class="row"><span class="pill">Ingresos</span><strong id="mIncome" class="mono ok"></strong></div>
-          <div class="row"><span class="pill">Gastos</span><strong id="mExpense" class="mono bad"></strong></div>
-          <div class="row"><span class="pill">Balance</span><strong id="mBalance" class="mono"></strong></div>
-          <div class="hr"></div>
-          <label>Meta de ahorro sugerida</label>
-          <div class="progress" title="Ahorro actual sobre meta"><span id="mSaveBar" style="width:0%"></span></div>
-          <div class="footer"><small class="muted">Meta: <span id="mSaveGoal" class="mono"></span></small><small class="muted">Ahorro: <span id="mSaveNow" class="mono"></span></small></div>
-        </div>
-        <div class="card">
-          <h2>Esta semana</h2>
-          <div class="row"><span class="pill">Ingresos</span><strong id="wIncome" class="mono ok"></strong></div>
-          <div class="row"><span class="pill">Gastos</span><strong id="wExpense" class="mono bad"></strong></div>
-          <div class="row"><span class="pill">Balance</span><strong id="wBalance" class="mono"></strong></div>
-          <div class="hr"></div>
-          <label>Top categorías de gasto</label>
-          <div id="wCats"></div>
-        </div>
-        <div class="card">
-          <h2>Hoy</h2>
-          <div class="row"><span class="pill">Ingresos</span><strong id="tIncome" class="mono ok"></strong></div>
-          <div class="row"><span class="pill">Gastos</span><strong id="tExpense" class="mono bad"></strong></div>
-          <div class="row"><span class="pill">Neto</span><strong id="tBalance" class="mono"></strong></div>
-          <div class="hr"></div>
-          <label>Pagos mínimos de deudas</label>
-          <div class="row"><strong id="minDebt" class="mono"></strong><small class="muted">/ mes</small></div>
-        </div>
-      </div>
-      <div class="card" style="margin-top:12px">
-        <div class="row" style="justify-content:space-between">
-          <h2>Gastos por categoría (mes actual)</h2>
-          <div class="row">
-            <label class="muted">Presupuesto por categoría (opcional):</label>
-            <input id="budgetInput" type="number" min="0" step="1000" placeholder="Global" style="width:140px"/>
-            <button class="ghost" id="applyBudget">Aplicar</button>
-          </div>
-        </div>
-        <div id="catsBreak"></div>
-      </div>
+      <p>Si ves este texto, JavaScript está funcionando ✅.</p>
+      <p class="muted" id="proof"></p>
     </section>
 
     <section id="panel-registrar" class="card" hidden>
-      <h2>Registrar movimiento</h2>
-      <div class="grid cols-2">
-        <div class="card">
-          <div class="row">
-            <button class="pill" id="type-expense">Gasto</button>
-            <button class="pill" id="type-income">Ingreso</button>
-            <span id="chosenType" class="pill" style="border-color:#334155">Tipo: Gasto</span>
-          </div>
-          <div class="grid cols-2" style="margin-top:10px">
-            <div>
-              <label>Fecha</label>
-              <input type="date" id="txDate" />
-            </div>
-            <div>
-              <label>Método de pago</label>
-              <select id="txMethod"></select>
-            </div>
-            <div>
-              <label>Categoría</label>
-              <select id="txCategory"></select>
-            </div>
-            <div>
-              <label>Monto</label>
-              <input type="number" id="txAmount" min="0" step="100" placeholder="0" />
-            </div>
-          </div>
-          <div class="grid cols-2" style="margin-top:10px">
-            <div>
-              <label>Descripción</label>
-              <input id="txDesc" placeholder="Ej: Arriendo, Sueldo, Mercado" />
-            </div>
-            <div>
-              <label>Nota (opcional)</label>
-              <input id="txNote" />
-            </div>
-          </div>
-          <div class="footer">
-            <div class="hint">Consejo: usa <span class="kbd">Tab</span> para moverte y <span class="kbd">Enter</span> para guardar.</div>
-            <div class="row">
-              <button id="saveTx" class="primary">Guardar</button>
-              <button id="clearTx" class="ghost">Limpiar</button>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <h2>Movimientos recientes</h2>
-          <div class="row" style="gap:6px">
-            <input id="search" placeholder="Buscar (desc, categoría, método)" />
-            <select id="filterType" style="max-width:140px">
-              <option value="all">Todos</option>
-              <option value="Gasto">Gastos</option>
-              <option value="Ingreso">Ingresos</option>
-            </select>
-            <input type="month" id="filterMonth" />
-            <button id="resetFilters" class="ghost">Quitar filtros</button>
-          </div>
-          <div style="max-height:350px;overflow:auto;margin-top:10px">
-            <table id="txTable"></table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="panel-deudas" class="card" hidden>
-      <h2>Deudas</h2>
-      <div class="grid cols-2">
-        <div class="card">
-          <div class="grid cols-2">
-            <div>
-              <label>Acreedor</label>
-              <input id="dbCreditor" placeholder="Banco / Persona" />
-            </div>
-            <div>
-              <label>Tipo</label>
-              <select id="dbType">
-                <option>TC</option>
-                <option>Préstamo</option>
-                <option>Hipoteca</option>
-                <option>Otro</option>
-              </select>
-            </div>
-            <div>
-              <label>Monto adeudado</label>
-              <input id="dbAmount" type="number" min="0" step="1000" />
-            </div>
-            <div>
-              <label>Tasa anual (%)</label>
-              <input id="dbAnnual" type="number" min="0" step="0.01" />
-            </div>
-            <div>
-              <label>Pago mínimo mensual</label>
-              <input id="dbMin" type="number" min="0" step="1000" />
-            </div>
-            <div>
-              <label>Fecha de corte</label>
-              <input id="dbCut" type="date" />
-            </div>
-          </div>
-          <div class="footer">
-            <div></div>
-            <div class="row">
-              <button id="saveDebt" class="primary">Agregar</button>
-              <button id="clearDebt" class="ghost">Limpiar</button>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <h2>Listado</h2>
-          <div style="max-height:350px;overflow:auto;margin-top:8px">
-            <table id="dbTable"></table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="panel-categorias" class="card" hidden>
-      <h2>Categorías & Métodos</h2>
-      <div class="grid cols-2">
-        <div class="card">
-          <h3 style="margin-top:0">Categorías</h3>
-          <div class="row">
-            <input id="newCat" placeholder="Nueva categoría"/>
-            <button id="addCat" class="ghost">Agregar</button>
-          </div>
-          <div id="catList" style="margin-top:8px"></div>
-        </div>
-        <div class="card">
-          <h3 style="margin-top:0">Métodos de pago</h3>
-          <div class="row">
-            <input id="newMethod" placeholder="Ej: Efectivo, Nequi, Bancolombia"/>
-            <button id="addMethod" class="ghost">Agregar</button>
-          </div>
-          <div id="methodList" style="margin-top:8px"></div>
-          <div class="hr"></div>
-          <label>Porcentaje de ahorro sugerido</label>
-          <div class="row">
-            <input id="savePct" type="number" min="0" max="100" step="1" style="max-width:120px"/> <span class="muted">%</span>
-            <button id="saveSettings" class="primary">Guardar ajustes</button>
-          </div>
-        </div>
-      </div>
+      <h2>Registrar</h2>
+      <label>Descripción<br/><input id="desc" placeholder="Ej: Mercado" style="width:100%;padding:8px"/></label>
+      <label>Monto<br/><input id="amount" type="number" step="100" style="width:100%;padding:8px"/></label>
+      <button id="add">Agregar</button>
+      <div id="list" class="muted" style="margin-top:8px"></div>
     </section>
 
     <section id="panel-respaldo" class="card" hidden>
-      <h2>Respaldo / Importar</h2>
-      <div class="grid cols-2">
-        <div class="card">
-          <h3 style="margin-top:0">Exportar datos</h3>
-          <div class="row">
-            <button id="exportJSON" class="primary">Descargar JSON</button>
-            <button id="exportCSV" class="ghost">Descargar CSV (movimientos)</button>
-          </div>
-          <p class="hint">Consejo: realiza respaldos periódicos. Tus datos viven <strong>solo</strong> en este navegador (LocalStorage).</p>
-        </div>
-        <div class="card">
-          <h3 style="margin-top:0">Importar</h3>
-          <p class="hint">Puedes importar un JSON exportado desde aquí o un CSV de movimientos (guarda tu Excel como CSV UTF-8).</p>
-          <div class="row">
-            <input type="file" id="importFile" accept=".json,.csv" />
-            <button id="importBtn" class="primary">Importar</button>
-          </div>
-          <div class="hr"></div>
-          <button id="resetAll" class="warn">Borrar TODO</button>
-        </div>
-      </div>
+      <h2>Respaldo</h2>
+      <button id="export">Exportar JSON</button>
     </section>
 
-    <footer class="hint" style="margin-top:12px">Hecho para funcionar offline, sin instalaciones. Guarda esta página como archivo y ábrela en tu navegador (teléfono o PC). • Moneda predeterminada: COP $</footer>
+    <noscript><div class="card">Tu navegador tiene <b>JavaScript desactivado</b>. Actívalo para usar la app.</div></noscript>
   </div>
 
-<script src="app.js" defer></script>
+  <script src="./app.js" defer></script>
 </body>
 </html>
