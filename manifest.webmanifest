@@ -1,8 +1,8 @@
 {
   "name": "Gastos + Ingresos — FinApp",
   "short_name": "FinApp",
-  "start_url": "index.html",
-  "scope": "./",
+  "start_url": "/finapp/",
+  "scope": "/finapp/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
