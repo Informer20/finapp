@@ -4,10 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gastos + Ingresos (Autónoma)</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#0f172a">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-
   <style>
     :root{
       --bg:#0f172a; /* slate-900 */
@@ -70,7 +66,7 @@
   <div class="wrap">
     <header>
       <h1>📒 Gastos + Ingresos <span class="pill">Autónoma</span></h1>
-      <nav class="tabs" id="tabs"></nav><button id="installBtn" class="pill" style="display:none">Instalar app</button>
+      <nav class="tabs" id="tabs"></nav>
     </header>
 
     <!-- Panels -->
@@ -609,27 +605,5 @@
 
 })();
 </script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    try { await navigator.serviceWorker.register('./sw.js', { scope: './' }); } catch (e) { console.log('SW error', e); }
-  });
-}
-</script>
-
-
-<script>
-(function(){
-  let deferredPrompt=null;
-  const btn=document.getElementById('installBtn');
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  if(isStandalone){ btn.style.display='none'; }
-  window.addEventListener('beforeinstallprompt',(e)=>{ e.preventDefault(); deferredPrompt=e; btn.style.display='inline-flex'; });
-  btn?.addEventListener('click', async()=>{ if(!deferredPrompt) return; btn.disabled=true; try{ deferredPrompt.prompt(); await deferredPrompt.userChoice; } finally { deferredPrompt=null; btn.style.display='none'; } });
-  window.addEventListener('appinstalled', ()=>{ btn.style.display='none'; });
-})();
-</script>
-
 </body>
 </html>
