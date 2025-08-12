@@ -1,0 +1,1 @@
+Publica esta carpeta en GitHub Pages (main) y abre la URL para instalar la app.
