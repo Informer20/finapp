@@ -1,9 +1,9 @@
-// Simple network-first service worker
-const CACHE = 'finapp-pwa-v1';
+// Network-first con fallback y control de versiones
+const CACHE = 'finapp-pwa-v2';
 const ASSETS = [
   './',
   './index.html',
-  './app.js',
+  './app.js?v=2',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png'
@@ -19,6 +19,12 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
@@ -29,7 +35,6 @@ self.addEventListener('fetch', (e) => {
       return res;
     }).catch(() => caches.match(req).then(cached => {
       if (cached) return cached;
-      // Navegaciones: devolver index.html
       if (req.headers.get('accept') && req.headers.get('accept').includes('text/html')) {
         return caches.match('./index.html');
       }

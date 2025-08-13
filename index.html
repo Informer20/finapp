@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gastos + Ingresos (PWA)</title>
+  <title>FinApp: controla tus ingresos y gastos</title>
   <meta name="theme-color" content="#0f172a"/>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./icon-192.png">
@@ -48,19 +48,28 @@
     .progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#16a34a)}
     .bar{height:8px;border-radius:6px;background:#0b1220;border:1px solid #1f2937;overflow:hidden}
     .bar>em{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#3b82f6)}
+    /* Update banner */
+    #updateBanner{position:fixed;left:16px;right:16px;bottom:16px;background:#0b1220;border:1px solid #334155;border-radius:12px;padding:12px;display:none;align-items:center;justify-content:space-between;gap:12px;z-index:50;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+    #updateBanner.show{display:flex}
+    .online-badge{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid #1f2937;background:#0b1220}
+    .online{color:#22c55e} .offline{color:#ef4444}
+    /* Totals bar */
+    #txTotals{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+    #txTotals .pill{background:#0b1220}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>📒 Gastos + Ingresos <span class="pill">PWA</span></h1>
+      <h1>FinApp: controla tus ingresos y gastos</h1>
       <div class="row">
+        <span id="onlineBadge" class="online-badge">🟢 Online</span>
         <button id="installBtn" class="pill" title="Instalar app" hidden>Instalar</button>
         <nav class="tabs" id="tabs"></nav>
       </div>
     </header>
 
-    <!-- Panels (idénticos a la versión anterior) -->
+    <!-- Panels -->
     <section id="panel-resumen" class="card" hidden>
       <h2>Resumen</h2>
       <div class="grid cols-3">
@@ -144,7 +153,7 @@
             </div>
           </div>
           <div class="row">
-            <div class="muted">Consejo: <b>Tab</b> para moverte y <b>Enter</b> para guardar.</div>
+            <div class="muted">Atajos: <b>/</b> o <b>Ctrl+K</b> para buscar, <b>Enter</b> para guardar.</div>
             <div class="row">
               <button id="saveTx" class="primary">Guardar</button>
               <button id="clearTx" class="ghost">Limpiar</button>
@@ -163,6 +172,7 @@
             <input type="month" id="filterMonth" />
             <button id="resetFilters" class="ghost">Quitar filtros</button>
           </div>
+          <div id="txTotals"></div>
           <div style="max-height:350px;overflow:auto;margin-top:10px">
             <table id="txTable"></table>
           </div>
@@ -204,8 +214,12 @@
           <div class="row"><input id="newMethod" placeholder="Efectivo, Nequi, Bancolombia"/><button id="addMethod" class="ghost">Agregar</button></div>
           <div id="methodList" style="margin-top:8px"></div>
           <div class="hr"></div>
-          <label>Porcentaje de ahorro sugerido</label>
-          <div class="row"><input id="savePct" type="number" min="0" max="100" step="1" style="max-width:120px"/> <span class="muted">%</span><button id="saveSettings" class="primary">Guardar ajustes</button></div>
+          <label>Porcentaje de ahorro (%) y Moneda</label>
+          <div class="row">
+            <input id="savePct" type="number" min="0" max="100" step="1" style="max-width:120px"/> 
+            <input id="currencySym" placeholder="Ej: COP $" style="max-width:140px"/>
+            <button id="saveSettings" class="primary">Guardar ajustes</button>
+          </div>
         </div>
       </div>
     </section>
@@ -231,6 +245,11 @@
     <footer class="muted" style="margin-top:12px">Funciona offline e instalable (PWA). Moneda predeterminada: COP $</footer>
   </div>
 
-  <script src="./app.js" defer></script>
+  <div id="updateBanner">
+    <div class="row"><strong>🔄 Nueva versión disponible</strong><span class="muted">— Actualiza para obtener las mejoras.</span></div>
+    <div class="row"><button id="reloadApp" class="primary">Actualizar</button><button id="dismissUpd" class="ghost">Luego</button></div>
+  </div>
+
+  <script src="./app.js?v=2" defer></script>
 </body>
 </html>
