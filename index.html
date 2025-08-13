@@ -3,30 +3,26 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gastos + Ingresos (Autónoma)</title>
+  <title>Gastos + Ingresos (PWA)</title>
+  <meta name="theme-color" content="#0f172a"/>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icon-192.png">
   <style>
     :root{
-      --bg:#0f172a; /* slate-900 */
-      --panel:#111827; /* gray-900 */
-      --muted:#94a3b8; /* slate-400 */
-      --text:#f8fafc; /* slate-50 */
-      --accent:#22c55e; /* green-500 */
-      --warn:#ef4444; /* red-500 */
-      --card:#0b1220; /* deep */
-      --chip:#1f2937; /* gray-800 */
-      --yellow:#eab308;
-      --blue:#3b82f6;
-      --violet:#8b5cf6;
+      --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#f8fafc;
+      --accent:#22c55e; --warn:#ef4444; --chip:#1f2937;
+      --blue:#3b82f6; --violet:#8b5cf6;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;background:linear-gradient(180deg,var(--bg),#060913);color:var(--text);font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#060913);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
     .wrap{max-width:1100px;margin:0 auto;padding:16px}
     header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
     h1{font-size:20px;margin:0;letter-spacing:.3px}
     .tabs{display:flex;gap:6px;flex-wrap:wrap}
     .tab{border:1px solid #1f2937;background:var(--panel);color:var(--text);padding:8px 12px;border-radius:999px;cursor:pointer;opacity:.8}
     .tab.active{border-color:var(--accent);opacity:1}
+    .pill{padding:6px 12px;border-radius:999px;background:var(--chip);font-size:12px;color:#e2e8f0;border:1px solid #1f2937;cursor:pointer}
     .grid{display:grid;gap:12px}
     .grid.cols-2{grid-template-columns:repeat(2,1fr)}
     .grid.cols-3{grid-template-columns:repeat(3,1fr)}
@@ -41,35 +37,30 @@
     button.primary{background:linear-gradient(90deg, var(--blue), var(--violet));border:0}
     button.ghost{background:transparent;border:1px dashed #334155}
     button.warn{background:var(--warn);border:0}
-    .pill{padding:4px 10px;border-radius:999px;background:var(--chip);font-size:12px;color:#e2e8f0;border:1px solid #1f2937}
     table{width:100%;border-collapse:collapse;font-size:14px}
     th,td{padding:8px 8px;border-bottom:1px solid #1f2937;text-align:left}
     tr:hover td{background:#0a1221}
     .right{text-align:right}
     .muted{color:var(--muted)}
-    .ok{color:var(--accent)}
-    .bad{color:var(--warn)}
-    .mono{font-variant-numeric:tabular-nums}
+    .ok{color:var(--accent)} .bad{color:#ef4444} .mono{font-variant-numeric:tabular-nums}
     .hr{height:1px;background:#1f2937;margin:10px 0}
     .progress{height:10px;background:#0b1220;border-radius:999px;border:1px solid #1f2937;overflow:hidden}
     .progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#16a34a)}
-    .tag{display:inline-block;margin:2px 4px 0 0}
-    .footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px}
-    .hint{font-size:12px;color:#a3a3a3}
-    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;border:1px solid #374151;border-radius:6px;padding:1px 6px;background:#0b1220}
     .bar{height:8px;border-radius:6px;background:#0b1220;border:1px solid #1f2937;overflow:hidden}
     .bar>em{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#3b82f6)}
-    .flex{display:flex;gap:10px;align-items:center}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>📒 Gastos + Ingresos <span class="pill">Autónoma</span></h1>
-      <nav class="tabs" id="tabs"></nav>
+      <h1>📒 Gastos + Ingresos <span class="pill">PWA</span></h1>
+      <div class="row">
+        <button id="installBtn" class="pill" title="Instalar app" hidden>Instalar</button>
+        <nav class="tabs" id="tabs"></nav>
+      </div>
     </header>
 
-    <!-- Panels -->
+    <!-- Panels (idénticos a la versión anterior) -->
     <section id="panel-resumen" class="card" hidden>
       <h2>Resumen</h2>
       <div class="grid cols-3">
@@ -81,7 +72,7 @@
           <div class="hr"></div>
           <label>Meta de ahorro sugerida</label>
           <div class="progress" title="Ahorro actual sobre meta"><span id="mSaveBar" style="width:0%"></span></div>
-          <div class="footer"><small class="muted">Meta: <span id="mSaveGoal" class="mono"></span></small><small class="muted">Ahorro: <span id="mSaveNow" class="mono"></span></small></div>
+          <div class="row"><small class="muted">Meta: <span id="mSaveGoal" class="mono"></span></small><small class="muted">Ahorro: <span id="mSaveNow" class="mono"></span></small></div>
         </div>
         <div class="card">
           <h2>Esta semana</h2>
@@ -152,8 +143,8 @@
               <input id="txNote" />
             </div>
           </div>
-          <div class="footer">
-            <div class="hint">Consejo: usa <span class="kbd">Tab</span> para moverte y <span class="kbd">Enter</span> para guardar.</div>
+          <div class="row">
+            <div class="muted">Consejo: <b>Tab</b> para moverte y <b>Enter</b> para guardar.</div>
             <div class="row">
               <button id="saveTx" class="primary">Guardar</button>
               <button id="clearTx" class="ghost">Limpiar</button>
@@ -184,49 +175,18 @@
       <div class="grid cols-2">
         <div class="card">
           <div class="grid cols-2">
-            <div>
-              <label>Acreedor</label>
-              <input id="dbCreditor" placeholder="Banco / Persona" />
-            </div>
-            <div>
-              <label>Tipo</label>
-              <select id="dbType">
-                <option>TC</option>
-                <option>Préstamo</option>
-                <option>Hipoteca</option>
-                <option>Otro</option>
-              </select>
-            </div>
-            <div>
-              <label>Monto adeudado</label>
-              <input id="dbAmount" type="number" min="0" step="1000" />
-            </div>
-            <div>
-              <label>Tasa anual (%)</label>
-              <input id="dbAnnual" type="number" min="0" step="0.01" />
-            </div>
-            <div>
-              <label>Pago mínimo mensual</label>
-              <input id="dbMin" type="number" min="0" step="1000" />
-            </div>
-            <div>
-              <label>Fecha de corte</label>
-              <input id="dbCut" type="date" />
-            </div>
+            <div><label>Acreedor</label><input id="dbCreditor" /></div>
+            <div><label>Tipo</label><select id="dbType"><option>TC</option><option>Préstamo</option><option>Hipoteca</option><option>Otro</option></select></div>
+            <div><label>Monto adeudado</label><input id="dbAmount" type="number" min="0" step="1000" /></div>
+            <div><label>Tasa anual (%)</label><input id="dbAnnual" type="number" min="0" step="0.01" /></div>
+            <div><label>Pago mínimo mensual</label><input id="dbMin" type="number" min="0" step="1000" /></div>
+            <div><label>Fecha de corte</label><input id="dbCut" type="date" /></div>
           </div>
-          <div class="footer">
-            <div></div>
-            <div class="row">
-              <button id="saveDebt" class="primary">Agregar</button>
-              <button id="clearDebt" class="ghost">Limpiar</button>
-            </div>
-          </div>
+          <div class="row"><div></div><div class="row"><button id="saveDebt" class="primary">Agregar</button><button id="clearDebt" class="ghost">Limpiar</button></div></div>
         </div>
         <div class="card">
           <h2>Listado</h2>
-          <div style="max-height:350px;overflow:auto;margin-top:8px">
-            <table id="dbTable"></table>
-          </div>
+          <div style="max-height:350px;overflow:auto;margin-top:8px"><table id="dbTable"></table></div>
         </div>
       </div>
     </section>
@@ -236,25 +196,16 @@
       <div class="grid cols-2">
         <div class="card">
           <h3 style="margin-top:0">Categorías</h3>
-          <div class="row">
-            <input id="newCat" placeholder="Nueva categoría"/>
-            <button id="addCat" class="ghost">Agregar</button>
-          </div>
+          <div class="row"><input id="newCat" placeholder="Nueva categoría"/><button id="addCat" class="ghost">Agregar</button></div>
           <div id="catList" style="margin-top:8px"></div>
         </div>
         <div class="card">
           <h3 style="margin-top:0">Métodos de pago</h3>
-          <div class="row">
-            <input id="newMethod" placeholder="Ej: Efectivo, Nequi, Bancolombia"/>
-            <button id="addMethod" class="ghost">Agregar</button>
-          </div>
+          <div class="row"><input id="newMethod" placeholder="Efectivo, Nequi, Bancolombia"/><button id="addMethod" class="ghost">Agregar</button></div>
           <div id="methodList" style="margin-top:8px"></div>
           <div class="hr"></div>
           <label>Porcentaje de ahorro sugerido</label>
-          <div class="row">
-            <input id="savePct" type="number" min="0" max="100" step="1" style="max-width:120px"/> <span class="muted">%</span>
-            <button id="saveSettings" class="primary">Guardar ajustes</button>
-          </div>
+          <div class="row"><input id="savePct" type="number" min="0" max="100" step="1" style="max-width:120px"/> <span class="muted">%</span><button id="saveSettings" class="primary">Guardar ajustes</button></div>
         </div>
       </div>
     </section>
@@ -264,29 +215,22 @@
       <div class="grid cols-2">
         <div class="card">
           <h3 style="margin-top:0">Exportar datos</h3>
-          <div class="row">
-            <button id="exportJSON" class="primary">Descargar JSON</button>
-            <button id="exportCSV" class="ghost">Descargar CSV (movimientos)</button>
-          </div>
-          <p class="hint">Consejo: realiza respaldos periódicos. Tus datos viven <strong>solo</strong> en este navegador (LocalStorage).</p>
+          <div class="row"><button id="exportJSON" class="primary">Descargar JSON</button><button id="exportCSV" class="ghost">Descargar CSV (movimientos)</button></div>
+          <p class="muted">Tus datos viven solo en este navegador (LocalStorage).</p>
         </div>
         <div class="card">
           <h3 style="margin-top:0">Importar</h3>
-          <p class="hint">Puedes importar un JSON exportado desde aquí o un CSV de movimientos (guarda tu Excel como CSV UTF-8).</p>
-          <div class="row">
-            <input type="file" id="importFile" accept=".json,.csv" />
-            <button id="importBtn" class="primary">Importar</button>
-          </div>
+          <p class="muted">Importa un JSON exportado aquí o un CSV (Excel → “CSV UTF-8”).</p>
+          <div class="row"><input type="file" id="importFile" accept=".json,.csv" /><button id="importBtn" class="primary">Importar</button></div>
           <div class="hr"></div>
           <button id="resetAll" class="warn">Borrar TODO</button>
         </div>
       </div>
     </section>
 
-    <footer class="hint" style="margin-top:12px">Hecho para funcionar offline, sin instalaciones. Guarda esta página como archivo y ábrela en tu navegador (teléfono o PC). • Moneda predeterminada: COP $</footer>
+    <footer class="muted" style="margin-top:12px">Funciona offline e instalable (PWA). Moneda predeterminada: COP $</footer>
   </div>
 
-  <!-- JS externo para evitar bloqueos/caché -->
-  <script src="./app.js?v=sim1" defer></script>
+  <script src="./app.js" defer></script>
 </body>
 </html>
