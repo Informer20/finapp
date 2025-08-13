@@ -1,11 +1,11 @@
 {
   "name": "FinApp: controla tus ingresos y gastos",
   "short_name": "FinApp",
-  "description": "Controla gastos e ingresos. Funciona offline e instalable.",
-  "start_url": "./?pwa=v4.1.4",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0b1220",
   "theme_color": "#0b1220",
+  "lang": "es",
   "icons": [
     {
       "src": "icon-192.png",

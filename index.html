@@ -1,255 +1,305 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220"/>
   <title>FinApp: controla tus ingresos y gastos</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="favicon.ico">
   <style>
     :root{
-      --bg:#0b1220;
-      --panel:#101826;
-      --muted:#94a3b8;
-      --text:#e5e7eb;
-      --accent:#6366f1;
-      --ok:#22c55e;
-      --warn:#ef4444;
-      --chip:#162233;
-      --card:#0d1726;
-      --border:#223047;
+      --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#f8fafc;
+      --accent:#22c55e; --warn:#ef4444; --card:#0b1220; --chip:#1f2937;
+      --blue:#3b82f6; --violet:#8b5cf6;
     }
-    [data-theme="light"]{
-      --bg:#f5f7fb;
-      --panel:#ffffff;
-      --muted:#475569;
-      --text:#0f172a;
-      --accent:#4f46e5;
-      --ok:#16a34a;
-      --warn:#dc2626;
-      --chip:#eef2ff;
-      --card:#f8fafc;
-      --border:#e2e8f0;
-    }
-    *{box-sizing:border-box}
+    *{box-sizing:border-box;-webkit-tap-highlight-color: rgba(0,0,0,0);}
     html,body{height:100%}
-    body{margin:0;background:linear-gradient(180deg,var(--bg),#061018 80%);color:var(--text);font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
-    .wrap{max-width:1180px;margin:0 auto;padding:14px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    .title{font-size:28px;line-height:1.1;margin:4px 0}
-    .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-    .tab{border:1px solid var(--border);background:var(--panel);color:var(--text);padding:8px 12px;border-radius:999px;cursor:pointer;opacity:.85}
-    .tab.active{outline:2px solid #22d3ee;opacity:1}
-    .chip{border:1px solid var(--border);background:var(--chip);color:var(--text);padding:6px 10px;border-radius:999px;opacity:.9}
-    .panel{background:linear-gradient(180deg,var(--panel),rgba(2,6,23,.3));border:1px solid var(--border);border-radius:16px;padding:16px}
-    .grid{display:grid;gap:14px}
-    .cols-3{grid-template-columns:repeat(3,1fr)}
-    .cols-2{grid-template-columns:repeat(2,1fr)}
-    @media(max-width:980px){.cols-3,.cols-2{grid-template-columns:1fr}}
-    h2{margin:0 0 10px 0;font-size:20px}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#060913);color:var(--text);font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px 16px 32px}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap}
+    h1{font-size:26px;margin:0;letter-spacing:.3px;line-height:1.2}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap}
+    .tab{border:1px solid #1f2937;background:var(--panel);color:var(--text);padding:10px 14px;border-radius:999px;cursor:pointer;opacity:.9}
+    .tab.active{border-color:var(--accent);opacity:1}
+    .grid{display:grid;gap:12px}
+    .grid.cols-2{grid-template-columns:repeat(2,1fr)}
+    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    @media(max-width:900px){.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}}
+    .card{background:radial-gradient(1200px 300px at -15% -10%, rgba(59,130,246,.07), transparent),linear-gradient(180deg,var(--panel),rgba(2,6,23,.7));border:1px solid #1f2937;border-radius:16px;padding:14px}
+    .card h2{margin:0 0 10px 0;font-size:18px;opacity:.95}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     label{font-size:12px;color:var(--muted)}
-    input,select,textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);outline:none}
-    button{background:var(--panel);color:var(--text);border:1px solid var(--border);padding:10px 14px;border-radius:12px;cursor:pointer}
-    button.primary{background:linear-gradient(90deg,#6d28d9,#3b82f6);border:0;color:white}
-    button.ghost{background:transparent;border:1px dashed var(--border)}
-    .pill{padding:4px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--border)}
-    .mono{font-variant-numeric:tabular-nums}
-    .right{text-align:right}
+    input, select, textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #243041;background:#0b1220;color:var(--text);outline:none}
+    input[type="number"]{appearance:textfield}
+    button{background:#111827;color:var(--text);border:1px solid #243041;padding:10px 14px;border-radius:12px;cursor:pointer}
+    button.primary{background:linear-gradient(90deg, var(--blue), var(--violet));border:0}
+    button.ghost{background:transparent;border:1px dashed #334155}
+    button.warn{background:var(--warn);border:0}
+    .pill{padding:6px 12px;border-radius:999px;background:var(--chip);font-size:12px;color:#e2e8f0;border:1px solid #1f2937}
     table{width:100%;border-collapse:collapse;font-size:14px}
-    th,td{padding:8px;border-bottom:1px solid var(--border)}
-    tr:hover td{background:rgba(2,6,23,.2)}
-    .bar{height:10px;border-radius:999px;background:var(--card);border:1px solid var(--border);overflow:hidden}
-    .bar>em{display:block;height:100%;background:linear-gradient(90deg,var(--ok),#16a34a)}
+    th,td{padding:10px 8px;border-bottom:1px solid #1f2937;text-align:left;vertical-align:middle}
+    tr:hover td{background:#0a1221}
+    .right{text-align:right}
     .muted{color:var(--muted)}
-    .hint{font-size:12px;color:var(--muted)}
-    .canvasBox{height:280px}
-    @media(max-width:520px){.canvasBox{height:240px} .title{font-size:24px}}
-    /* show/hide panels */
-    section[hidden]{display:none !important}
+    .ok{color:var(--accent)}
+    .bad{color:var(--warn)}
+    .mono{font-variant-numeric:tabular-nums}
+    .hr{height:1px;background:#1f2937;margin:10px 0}
+    .progress{height:10px;background:#0b1220;border-radius:999px;border:1px solid #1f2937;overflow:hidden}
+    .progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#16a34a)}
+    .hint{font-size:12px;color:#a3a3a3}
+    /* Sticky actions on narrow screens so the save buttons are always reachable */
+    @media (max-width: 480px){
+      h1{font-size:22px}
+      .wrap{padding:12px}
+      .sticky-actions{position:sticky;bottom:8px;z-index:5;background:linear-gradient(180deg, rgba(2,6,23,0), rgba(2,6,23,.75) 30%, rgba(2,6,23,.92));backdrop-filter: blur(2px);padding-top:8px}
+      .tab{padding:8px 12px}
+      input,select,textarea{padding:12px}
+    }
+    #updateBanner{display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:50;background:#0b1220;border:1px solid #334155;border-radius:14px;padding:12px;gap:8px;align-items:center;justify-content:space-between}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div>
-        <div class="title">FinApp: controla tus ingresos y gastos</div>
-        <nav class="tabs" id="tabs"></nav>
-      </div>
-      <div class="row">
-        <button class="tab" data-theme="auto">Auto</button>
-        <button class="tab" data-theme="dark">Oscuro</button>
-        <button class="tab" data-theme="light">Claro</button>
-        <span class="chip" id="onlinePill">• Online</span>
-      </div>
+      <h1>FinApp: controla tus ingresos y gastos</h1>
+      <nav class="tabs" id="tabs"></nav>
     </header>
 
     <!-- Panels -->
-    <section id="panel-resumen" class="panel" hidden>
+    <section id="panel-resumen" class="card" hidden>
       <h2>Resumen</h2>
       <div class="grid cols-3">
-        <div class="panel">
+        <div class="card">
           <h2>Este mes</h2>
-          <div class="row"><span class="pill">Ingresos</span><strong id="mIncome" class="mono" style="color:var(--ok)"></strong></div>
-          <div class="row"><span class="pill">Gastos</span><strong id="mExpense" class="mono" style="color:var(--warn)"></strong></div>
+          <div class="row"><span class="pill">Ingresos</span><strong id="mIncome" class="mono ok"></strong></div>
+          <div class="row"><span class="pill">Gastos</span><strong id="mExpense" class="mono bad"></strong></div>
           <div class="row"><span class="pill">Balance</span><strong id="mBalance" class="mono"></strong></div>
-          <div style="height:10px"></div>
+          <div class="hr"></div>
           <label>Meta de ahorro sugerida</label>
-          <div class="bar"><em id="mSaveBar" style="width:0%"></em></div>
-          <div class="row" style="justify-content:space-between"><small class="muted">Meta: <span id="mSaveGoal" class="mono"></span></small><small class="muted">Ahorro: <span id="mSaveNow" class="mono"></span></small></div>
+          <div class="progress"><span id="mSaveBar" style="width:0%"></span></div>
+          <div class="row" style="justify-content:space-between;margin-top:6px">
+            <small class="muted">Meta: <span id="mSaveGoal" class="mono"></span></small>
+            <small class="muted">Ahorro: <span id="mSaveNow" class="mono"></span></small>
+          </div>
         </div>
-        <div class="panel">
+        <div class="card">
           <h2>Esta semana</h2>
-          <div class="row"><span class="pill">Ingresos</span><strong id="wIncome" class="mono" style="color:var(--ok)"></strong></div>
-          <div class="row"><span class="pill">Gastos</span><strong id="wExpense" class="mono" style="color:var(--warn)"></strong></div>
+          <div class="row"><span class="pill">Ingresos</span><strong id="wIncome" class="mono ok"></strong></div>
+          <div class="row"><span class="pill">Gastos</span><strong id="wExpense" class="mono bad"></strong></div>
           <div class="row"><span class="pill">Balance</span><strong id="wBalance" class="mono"></strong></div>
-          <div style="height:10px"></div>
+          <div class="hr"></div>
           <label>Top categorías de gasto</label>
           <div id="wCats"></div>
         </div>
-        <div class="panel">
+        <div class="card">
           <h2>Hoy</h2>
-          <div class="row"><span class="pill">Ingresos</span><strong id="tIncome" class="mono" style="color:var(--ok)"></strong></div>
-          <div class="row"><span class="pill">Gastos</span><strong id="tExpense" class="mono" style="color:var(--warn)"></strong></div>
+          <div class="row"><span class="pill">Ingresos</span><strong id="tIncome" class="mono ok"></strong></div>
+          <div class="row"><span class="pill">Gastos</span><strong id="tExpense" class="mono bad"></strong></div>
           <div class="row"><span class="pill">Neto</span><strong id="tBalance" class="mono"></strong></div>
-          <div style="height:10px"></div>
+          <div class="hr"></div>
           <label>Pagos mínimos de deudas</label>
           <div class="row"><strong id="minDebt" class="mono"></strong><small class="muted">/ mes</small></div>
         </div>
       </div>
-      <div class="grid cols-2" style="margin-top:12px">
-        <div class="panel">
-          <h2>Ingresos vs Gastos (mes)</h2>
-          <div class="canvasBox"><canvas id="chartInOut"></canvas></div>
-        </div>
-        <div class="panel">
-          <div class="row" style="justify-content:space-between">
-            <h2>Gasto por categoría (mes)</h2>
-            <div class="row">
-              <input id="budgetInput" placeholder="Global" style="width:160px"/>
-              <button class="ghost" id="applyBudget">Aplicar</button>
-            </div>
+
+      <div class="card" style="margin-top:12px">
+        <h2>Ingresos vs Gastos (mes)</h2>
+        <div style="height:260px"><canvas id="chartInOut"></canvas></div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="row" style="justify-content:space-between">
+          <h2>Gasto por categoría (mes)</h2>
+          <div class="row">
+            <label class="muted">Presupuesto global (opcional):</label>
+            <input id="budgetInput" type="number" min="0" step="1000" placeholder="Global" style="width:140px"/>
+            <button class="ghost" id="applyBudget">Aplicar</button>
           </div>
-          <div class="canvasBox"><canvas id="chartByCat"></canvas></div>
         </div>
+        <div style="height:300px"><canvas id="chartByCat"></canvas></div>
       </div>
     </section>
 
-    <section id="panel-registrar" class="panel" hidden>
+    <section id="panel-registrar" class="card" hidden>
       <h2>Registrar movimiento</h2>
       <div class="grid cols-2">
-        <div class="panel">
+        <div class="card">
           <div class="row">
             <button class="pill" id="type-expense">Gasto</button>
             <button class="pill" id="type-income">Ingreso</button>
-            <span id="chosenType" class="pill">Tipo: Gasto</span>
+            <span id="chosenType" class="pill" style="border-color:#334155">Tipo: Gasto</span>
           </div>
           <div class="grid cols-2" style="margin-top:10px">
-            <div><label>Fecha</label><input type="date" id="txDate"/></div>
-            <div><label>Método de pago</label><select id="txMethod"></select></div>
-            <div><label>Categoría</label><select id="txCategory"></select></div>
-            <div><label>Monto</label><input type="number" id="txAmount" min="0" step="100"/></div>
+            <div>
+              <label>Fecha</label>
+              <input type="date" id="txDate" />
+            </div>
+            <div>
+              <label>Método de pago</label>
+              <select id="txMethod"></select>
+            </div>
+            <div>
+              <label>Categoría</label>
+              <select id="txCategory"></select>
+            </div>
+            <div>
+              <label>Monto</label>
+              <input type="number" id="txAmount" min="0" step="100" placeholder="0" />
+            </div>
           </div>
-          <div style="height:8px"></div>
-          <div class="grid cols-2">
-            <div><label>Descripción</label><input id="txDesc" placeholder="Ej: Arriendo, Sueldo, Mercado"/></div>
-            <div><label>Nota (opcional)</label><input id="txNote"/></div>
+          <div class="grid cols-2" style="margin-top:10px">
+            <div>
+              <label>Descripción</label>
+              <input id="txDesc" placeholder="Ej: Arriendo, Sueldo, Mercado" />
+            </div>
+            <div>
+              <label>Nota (opcional)</label>
+              <input id="txNote" />
+            </div>
           </div>
-          <div class="row" style="justify-content:space-between;margin-top:10px">
-            <div class="hint">Atajos: ⌘/Ctrl+K buscar, Enter guardar.</div>
-            <div class="row"><button id="saveTx" class="primary">Guardar</button><button id="clearTx" class="ghost">Limpiar</button></div>
+          <div class="row sticky-actions" style="justify-content:flex-end">
+            <div class="row">
+              <button id="saveTx" class="primary">Guardar</button>
+              <button id="clearTx" class="ghost">Limpiar</button>
+            </div>
           </div>
         </div>
-        <div class="panel">
+        <div class="card">
           <h2>Movimientos recientes</h2>
           <div class="row" style="gap:6px">
-            <input id="search" placeholder="Buscar (desc, categoría, método)"/>
+            <input id="search" placeholder="Buscar (desc, categoría, método)" />
             <select id="filterType" style="max-width:140px">
-              <option value="all">Todos</option><option value="Gasto">Gastos</option><option value="Ingreso">Ingresos</option>
+              <option value="all">Todos</option>
+              <option value="Gasto">Gastos</option>
+              <option value="Ingreso">Ingresos</option>
             </select>
-            <input type="month" id="filterMonth"/>
+            <input type="month" id="filterMonth" />
             <button id="resetFilters" class="ghost">Quitar filtros</button>
           </div>
-          <div style="max-height:360px;overflow:auto;margin-top:10px">
+          <div style="max-height:350px;overflow:auto;margin-top:10px">
             <table id="txTable"></table>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="panel-deudas" class="panel" hidden>
+    <section id="panel-deudas" class="card" hidden>
       <h2>Deudas</h2>
       <div class="grid cols-2">
-        <div class="panel">
+        <div class="card">
           <div class="grid cols-2">
-            <div><label>Acreedor</label><input id="dbCreditor"/></div>
-            <div><label>Tipo</label><select id="dbType"><option>TC</option><option>Préstamo</option><option>Hipoteca</option><option>Otro</option></select></div>
-            <div><label>Monto adeudado</label><input id="dbAmount" type="number" min="0" step="1000"/></div>
-            <div><label>Tasa anual (%)</label><input id="dbAnnual" type="number" min="0" step="0.01"/></div>
-            <div><label>Pago mínimo mensual</label><input id="dbMin" type="number" min="0" step="100"/></div>
-            <div><label>Fecha de corte</label><input id="dbCut" type="date"/></div>
+            <div>
+              <label>Acreedor</label>
+              <input id="dbCreditor" placeholder="Banco / Persona" />
+            </div>
+            <div>
+              <label>Tipo</label>
+              <select id="dbType">
+                <option>TC</option>
+                <option>Préstamo</option>
+                <option>Hipoteca</option>
+                <option>Otro</option>
+              </select>
+            </div>
+            <div>
+              <label>Monto adeudado</label>
+              <input id="dbAmount" type="number" min="0" step="1000" />
+            </div>
+            <div>
+              <label>Tasa anual (%)</label>
+              <input id="dbAnnual" type="number" min="0" step="0.01" />
+            </div>
+            <div>
+              <label>Pago mínimo mensual</label>
+              <input id="dbMin" type="number" min="0" step="1000" />
+            </div>
+            <div>
+              <label>Fecha de corte</label>
+              <input id="dbCut" type="date" />
+            </div>
           </div>
-          <div class="row" style="justify-content:flex-end;margin-top:10px">
-            <button id="saveDebt" class="primary">Agregar</button><button id="clearDebt" class="ghost">Limpiar</button>
+          <div class="row sticky-actions" style="justify-content:flex-end">
+            <div class="row">
+              <button id="saveDebt" class="primary">Agregar</button>
+              <button id="clearDebt" class="ghost">Limpiar</button>
+            </div>
           </div>
         </div>
-        <div class="panel">
+        <div class="card">
           <h2>Listado</h2>
-          <div style="max-height:360px;overflow:auto">
+          <div style="max-height:350px;overflow:auto;margin-top:8px">
             <table id="dbTable"></table>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="panel-categorias" class="panel" hidden>
+    <section id="panel-categorias" class="card" hidden>
       <h2>Categorías & Métodos</h2>
       <div class="grid cols-2">
-        <div class="panel">
-          <h3 style="margin:0 0 8px 0">Categorías</h3>
-          <div class="row"><input id="newCat" placeholder="Nueva categoría"/><button id="addCat" class="ghost">Agregar</button></div>
+        <div class="card">
+          <h3 style="margin-top:0">Categorías</h3>
+          <div class="row">
+            <input id="newCat" placeholder="Nueva categoría"/>
+            <button id="addCat" class="ghost">Agregar</button>
+          </div>
           <div id="catList" style="margin-top:8px"></div>
         </div>
-        <div class="panel">
-          <h3 style="margin:0 0 8px 0">Métodos de pago</h3>
-          <div class="row"><input id="newMethod" placeholder="Ej: Efectivo, Nequi"/><button id="addMethod" class="ghost">Agregar</button></div>
+        <div class="card">
+          <h3 style="margin-top:0">Métodos de pago</h3>
+          <div class="row">
+            <input id="newMethod" placeholder="Ej: Efectivo, Nequi, Bancolombia"/>
+            <button id="addMethod" class="ghost">Agregar</button>
+          </div>
           <div id="methodList" style="margin-top:8px"></div>
-          <div style="height:8px"></div>
+          <div class="hr"></div>
           <label>Porcentaje de ahorro sugerido</label>
-          <div class="row"><input id="savePct" type="number" min="0" max="100" step="1" style="max-width:120px"/><button id="saveSettings" class="primary">Guardar ajustes</button></div>
+          <div class="row">
+            <input id="savePct" type="number" min="0" max="100" step="1" style="max-width:120px"/> <span class="muted">%</span>
+            <button id="saveSettings" class="primary">Guardar ajustes</button>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="panel-respaldo" class="panel" hidden>
+    <section id="panel-respaldo" class="card" hidden>
       <h2>Respaldo / Importar</h2>
       <div class="grid cols-2">
-        <div class="panel">
+        <div class="card">
           <h3 style="margin-top:0">Exportar datos</h3>
-          <div class="row"><button id="exportJSON" class="primary">Descargar JSON</button><button id="exportCSV" class="ghost">Descargar CSV</button></div>
-          <p class="hint">Tus datos viven en este navegador (LocalStorage). Realiza respaldos periódicos.</p>
+          <div class="row">
+            <button id="exportJSON" class="primary">Descargar JSON</button>
+            <button id="exportCSV" class="ghost">Descargar CSV (movimientos)</button>
+          </div>
+          <p class="hint">Tus datos viven <strong>solo</strong> en este navegador (LocalStorage). Haz respaldos periódicos.</p>
         </div>
-        <div class="panel">
+        <div class="card">
           <h3 style="margin-top:0">Importar</h3>
-          <p class="hint">Acepta JSON exportado desde aquí o CSV (UTF‑8).</p>
-          <div class="row"><input type="file" id="importFile" accept=".json,.csv"/><button id="importBtn" class="primary">Importar</button></div>
-          <div style="height:8px"></div>
-          <button id="resetAll" class="ghost">Borrar TODO</button>
+          <p class="hint">Importa un JSON exportado o un CSV (UTF-8) de movimientos.</p>
+          <div class="row">
+            <input type="file" id="importFile" accept=".json,.csv" />
+            <button id="importBtn" class="primary">Importar</button>
+          </div>
+          <div class="hr"></div>
+          <button id="resetAll" class="warn">Borrar TODO</button>
         </div>
       </div>
     </section>
 
     <footer class="hint" style="margin-top:12px">Funciona offline e instalable (PWA). Moneda predeterminada: COP $</footer>
-
-    <!-- Update banner -->
-    <div id="updateBanner" style="display:none;position:fixed;left:12px;right:12px;bottom:12px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px;z-index:50;box-shadow:0 6px 22px rgba(0,0,0,.25)">
-      <div class="row" style="justify-content:space-between">
-        <span>Hay una actualización disponible.</span>
-        <span class="row"><button id="updateReload" class="primary">Actualizar</button><button id="updateClose" class="ghost">Cerrar</button></span>
-      </div>
-    </div>
-
   </div>
+
+  <div id="updateBanner" class="row">
+    <span>Hay una actualización lista.</span>
+    <span>
+      <button id="updateReload" class="primary">Actualizar</button>
+      <button id="updateClose" class="ghost">Cerrar</button>
+    </span>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
