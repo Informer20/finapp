@@ -47,9 +47,10 @@
       <button id="export">Exportar JSON</button>
     </section>
 
-    <noscript><div class="card">Tu navegador tiene JavaScript desactivado.</div></noscript>
+    <div id="debug" class="muted" style="margin-top:8px"></div>
   </div>
 
-  <script src="./app.js" defer></script>
+  <!-- Cargamos el JS externo con "cache buster" para evitar versiones viejas -->
+  <script src="./app.js?v=ultra2" defer></script>
 </body>
 </html>
