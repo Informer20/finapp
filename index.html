@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="auto">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -11,39 +11,51 @@
   <link rel="icon" href="./favicon.ico">
   <link rel="apple-touch-icon" href="./icon-192.png">
   <style>
-    :root{--bg:#0f172a;--panel:#111827;--muted:#94a3b8;--text:#f8fafc;--accent:#22c55e;--warn:#ef4444;--chip:#1f2937;--blue:#3b82f6;--violet:#8b5cf6;}
+    /* ===== THEME ===== */
+    :root{
+      --bg:#0f172a;--panel:#111827;--muted:#94a3b8;--text:#f8fafc;--accent:#22c55e;--warn:#ef4444;--chip:#1f2937;--blue:#3b82f6;--violet:#8b5cf6;
+    }
+    @media (prefers-color-scheme: light) {
+      :root{--bg:#f8fafc;--panel:#ffffff;--muted:#64748b;--text:#0b1220;--accent:#16a34a;--warn:#dc2626;--chip:#e5e7eb;--blue:#2563eb;--violet:#7c3aed;}
+    }
+    [data-theme="dark"]{--bg:#0f172a;--panel:#111827;--muted:#94a3b8;--text:#f8fafc;--accent:#22c55e;--warn:#ef4444;--chip:#1f2937;--blue:#3b82f6;--violet:#8b5cf6;}
+    [data-theme="light"]{--bg:#f8fafc;--panel:#ffffff;--muted:#64748b;--text:#0b1220;--accent:#16a34a;--warn:#dc2626;--chip:#e5e7eb;--blue:#2563eb;--violet:#7c3aed;}
     *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;background:linear-gradient(180deg,var(--bg),#060913);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    body{margin:0;background:linear-gradient(180deg,var(--bg),color-mix(in oklab,var(--bg),black 10%));color:var(--text);
+         font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;
          padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
     .wrap{max-width:1100px;margin:0 auto;padding:16px}
     header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
     h1{font-size:20px;margin:0}
     .tabs{display:flex;gap:6px;flex-wrap:wrap}
-    .tab{border:1px solid #1f2937;background:var(--panel);color:var(--text);padding:8px 12px;border-radius:999px;cursor:pointer;opacity:.85}
+    .tab{border:1px solid color-mix(in oklab,var(--chip),black 10%);background:var(--panel);color:var(--text);padding:8px 12px;border-radius:999px;cursor:pointer;opacity:.9}
     .tab.active{border-color:var(--accent);opacity:1}
-    .pill{padding:6px 12px;border-radius:999px;background:var(--chip);font-size:12px;color:#e2e8f0;border:1px solid #1f2937;cursor:pointer}
+    .pill{padding:6px 12px;border-radius:999px;background:var(--chip);font-size:12px;color:color-mix(in oklab,var(--text),#000 10%);border:1px solid color-mix(in oklab,var(--chip),black 10%);cursor:pointer}
     .grid{display:grid;gap:12px}
     .grid.cols-2{grid-template-columns:repeat(2,1fr)} .grid.cols-3{grid-template-columns:repeat(3,1fr)}
     @media(max-width:900px){.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}}
-    .card{background:radial-gradient(1200px 300px at -15% -10%, rgba(59,130,246,.07), transparent),linear-gradient(180deg,var(--panel),rgba(2,6,23,.7));
-          border:1px solid #1f2937;border-radius:16px;padding:14px}
+    .card{background:radial-gradient(1200px 300px at -15% -10%, color-mix(in oklab,var(--blue),transparent 90%), transparent),
+          linear-gradient(180deg,var(--panel),color-mix(in oklab,var(--panel),transparent 40%));
+          border:1px solid color-mix(in oklab,var(--chip),black 10%);border-radius:16px;padding:14px}
     .card h2{margin:0 0 10px 0;font-size:16px}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     label{font-size:12px;color:var(--muted)}
-    input,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #243041;background:#0b1220;color:var(--text);outline:none}
-    input[type="number"]{appearance:textfield} button{background:#111827;color:#f8fafc;border:1px solid #243041;padding:10px 14px;border-radius:12px;cursor:pointer}
-    button.primary{background:linear-gradient(90deg,var(--blue),var(--violet));border:0} button.ghost{background:transparent;border:1px dashed #334155}
-    button.warn{background:var(--warn);border:0}
-    table{width:100%;border-collapse:collapse;font-size:14px} th,td{padding:8px;border-bottom:1px solid #1f2937;text-align:left}
-    tr:hover td{background:#0a1221} .right{text-align:right} .muted{color:var(--muted)} .ok{color:var(--accent)} .bad{color:#ef4444} .mono{font-variant-numeric:tabular-nums}
-    .hr{height:1px;background:#1f2937;margin:10px 0}
-    .progress{height:10px;background:#0b1220;border-radius:999px;border:1px solid #1f2937;overflow:hidden}
-    .progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#16a34a)}
-    .bar{height:8px;border-radius:6px;background:#0b1220;border:1px solid #1f2937;overflow:hidden} .bar>em{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#3b82f6)}
-    #updateBanner{position:fixed;left:16px;right:16px;bottom:16px;background:#0b1220;border:1px solid #334155;border-radius:12px;padding:12px;display:none;
-                  align-items:center;justify-content:space-between;gap:12px;z-index:50;box-shadow:0 10px 40px rgba(0,0,0,.4)}
-    #updateBanner.show{display:flex} .online-badge{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid #1f2937;background:#0b1220}
-    .online{color:#22c55e}.offline{color:#ef4444} #txTotals{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px} #txTotals .pill{background:#0b1220}
+    input,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid color-mix(in oklab,var(--chip),black 15%);background:color-mix(in oklab,var(--panel),black 5%);color:var(--text);outline:none}
+    input[type="number"]{appearance:textfield} 
+    button{background:color-mix(in oklab,var(--panel),black 10%);color:var(--text);border:1px solid color-mix(in oklab,var(--chip),black 15%);padding:10px 14px;border-radius:12px;cursor:pointer}
+    button.primary{background:linear-gradient(90deg,var(--blue),var(--violet));border:0;color:#fff} button.ghost{background:transparent;border:1px dashed color-mix(in oklab,var(--chip),black 25%)}
+    button.warn{background:var(--warn);border:0;color:#fff}
+    table{width:100%;border-collapse:collapse;font-size:14px} th,td{padding:8px;border-bottom:1px solid color-mix(in oklab,var(--chip),black 10%);text-align:left}
+    tr:hover td{background:color-mix(in oklab,var(--panel),black 10%)} .right{text-align:right} .muted{color:var(--muted)} .ok{color:var(--accent)} .bad{color:var(--warn)} .mono{font-variant-numeric:tabular-nums}
+    .hr{height:1px;background:color-mix(in oklab,var(--chip),black 10%);margin:10px 0}
+    .progress{height:10px;background:color-mix(in oklab,var(--panel),black 10%);border-radius:999px;border:1px solid color-mix(in oklab,var(--chip),black 15%);overflow:hidden}
+    .progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),color-mix(in oklab,var(--accent),#000 15%))}
+    .bar{height:8px;border-radius:6px;background:color-mix(in oklab,var(--panel),black 10%);border:1px solid color-mix(in oklab,var(--chip),black 15%);overflow:hidden} .bar>em{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,var(--blue))}
+    #updateBanner{position:fixed;left:16px;right:16px;bottom:16px;background:color-mix(in oklab,var(--panel),black 10%);border:1px solid color-mix(in oklab,var(--chip),black 20%);border-radius:12px;padding:12px;display:none;
+                  align-items:center;justify-content:space-between;gap:12px;z-index:50;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+    #updateBanner.show{display:flex} .online-badge{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid color-mix(in oklab,var(--chip),black 15%);background:color-mix(in oklab,var(--panel),black 10%)}
+    .online{color:var(--accent)}.offline{color:var(--warn)} #txTotals{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px} #txTotals .pill{background:color-mix(in oklab,var(--panel),black 10%)}
+    canvas{max-width:100%;height:auto;border:1px solid color-mix(in oklab,var(--chip),black 10%);border-radius:12px;background:color-mix(in oklab,var(--panel),black 5%)}
   </style>
 </head>
 <body>
@@ -51,6 +63,7 @@
     <header>
       <h1>FinApp: controla tus ingresos y gastos</h1>
       <div class="row">
+        <button id="themeBtn" class="pill" title="Cambiar tema">🌙 Oscuro</button>
         <span id="onlineBadge" class="online-badge">🟢 Online</span>
         <button id="installBtn" class="pill" title="Instalar app" hidden>Instalar</button>
         <nav class="tabs" id="tabs"></nav>
@@ -89,16 +102,23 @@
           <div class="row"><strong id="minDebt" class="mono"></strong><small class="muted">/ mes</small></div>
         </div>
       </div>
-      <div class="card" style="margin-top:12px">
-        <div class="row" style="justify-content:space-between">
-          <h2>Gastos por categoría (mes actual)</h2>
-          <div class="row">
-            <label class="muted">Presupuesto por categoría (opcional):</label>
-            <input id="budgetInput" type="number" min="0" step="1000" placeholder="Global" style="width:140px"/>
-            <button class="ghost" id="applyBudget">Aplicar</button>
-          </div>
+
+      <div class="grid cols-2" style="margin-top:12px">
+        <div class="card">
+          <h2>Ingresos vs Gastos (mes)</h2>
+          <canvas id="chartIG" height="220"></canvas>
         </div>
-        <div id="catsBreak"></div>
+        <div class="card">
+          <div class="row" style="justify-content:space-between">
+            <h2>Gasto por categoría (mes)</h2>
+            <div class="row">
+              <label class="muted">Presupuesto global (opcional):</label>
+              <input id="budgetInput" type="number" min="0" step="1000" placeholder="0" style="width:140px"/>
+              <button class="ghost" id="applyBudget">Aplicar</button>
+            </div>
+          </div>
+          <canvas id="chartCats" height="220"></canvas>
+        </div>
       </div>
     </section>
 
@@ -109,7 +129,7 @@
           <div class="row">
             <button class="pill" id="type-expense">Gasto</button>
             <button class="pill" id="type-income">Ingreso</button>
-            <span id="chosenType" class="pill" style="border-color:#334155">Tipo: Gasto</span>
+            <span id="chosenType" class="pill" style="border-color:color-mix(in oklab,var(--chip),black 25%)">Tipo: Gasto</span>
           </div>
           <div class="grid cols-2" style="margin-top:10px">
             <div><label>Fecha</label><input type="date" id="txDate"/></div>
@@ -216,6 +236,6 @@
     <div class="row"><button id="reloadApp" class="primary">Actualizar</button><button id="dismissUpd" class="ghost">Luego</button></div>
   </div>
 
-  <script src="./app.js?v=3.0" defer></script>
+  <script src="./app.js?v=4.0" defer></script>
 </body>
 </html>
