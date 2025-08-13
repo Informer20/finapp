@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>FinApp: controla tus ingresos y gastos</title>
+  <meta name="theme-color" content="#0f172a"/>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./favicon.ico">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <style>
+    :root{
+      --bg:#0f172a;--panel:#111827;--muted:#94a3b8;--text:#f8fafc;--accent:#22c55e;--warn:#ef4444;--chip:#1f2937;--blue:#3b82f6;--violet:#8b5cf6;
+    }
+    [data-theme="light"]{
+      --bg:#f8fafc;--panel:#ffffff;--muted:#64748b;--text:#0b1220;--accent:#16a34a;--warn:#dc2626;--chip:#e5e7eb;--blue:#2563eb;--violet:#7c3aed;
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#0a1020);color:var(--text);
+         font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+         padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+    h1{font-size:20px;margin:0}
+    .tabs{display:flex;gap:6px;flex-wrap:wrap}
+    .tab{border:1px solid #1f2937;background:var(--panel);color:var(--text);padding:8px 12px;border-radius:999px;cursor:pointer;opacity:.9}
+    .tab.active{border-color:var(--accent)}
+    .pill{padding:6px 12px;border-radius:999px;background:var(--chip);font-size:12px;color:#e2e8f0;border:1px solid #1f2937;cursor:pointer}
+    .grid{display:grid;gap:12px}
+    .grid.cols-2{grid-template-columns:repeat(2,1fr)} .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    @media(max-width:900px){.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}}
+    .card{background:radial-gradient(1200px 300px at -15% -10%, rgba(59,130,246,.07), transparent),linear-gradient(180deg,var(--panel),rgba(2,6,23,.7));
+          border:1px solid #1f2937;border-radius:16px;padding:14px}
+    .card h2{margin:0 0 10px 0;font-size:16px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    label{font-size:12px;color:var(--muted)}
+    input,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #243041;background:#0b1220;color:var(--text);outline:none}
+    body[data-theme="light"] input, body[data-theme="light"] select{background:#f2f5fb;color:#0b1220;border-color:#cbd5e1}
+    input[type="number"]{appearance:textfield}
+    button{background:#111827;color:#f8fafc;border:1px solid #243041;padding:10px 14px;border-radius:12px;cursor:pointer}
+    button.primary{background:linear-gradient(90deg,var(--blue),var(--violet));border:0}
+    button.ghost{background:transparent;border:1px dashed #334155}
+    button.warn{background:var(--warn);border:0}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{padding:8px;border-bottom:1px solid #1f2937;text-align:left}
+    tr:hover td{background:#0a1221}
+    .right{text-align:right}
+    .muted{color:var(--muted)}
+    .ok{color:var(--accent)} .bad{color:var(--warn)}
+    .mono{font-variant-numeric:tabular-nums}
+    .hr{height:1px;background:#1f2937;margin:10px 0}
+    .progress{height:10px;background:#0b1220;border-radius:999px;border:1px solid #1f2937;overflow:hidden}
+    .progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#16a34a)}
+    .online-badge{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid #1f2937;background:#0b1220}
+    .online{color:#22c55e}.offline{color:#ef4444}
+    #txTotals{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+    #txTotals .pill{background:#0b1220}
+    canvas{max-width:100%;height:auto;border:1px solid #1f2937;border-radius:12px;background:#0b1220}
+    #updateBanner{position:fixed;left:16px;right:16px;bottom:16px;background:#0b1220;border:1px solid #334155;border-radius:12px;padding:12px;display:none;
+                  align-items:center;justify-content:space-between;gap:12px;z-index:50;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+    #updateBanner.show{display:flex}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>FinApp: controla tus ingresos y gastos</h1>
+      <div class="row">
+        <button id="themeBtn" class="pill" title="Cambiar tema">🌓 Auto</button>
+        <span id="onlineBadge" class="online-badge">🟢 Online</span>
+        <button id="installBtn" class="pill" title="Instalar app" hidden>Instalar</button>
+        <nav class="tabs" id="tabs"></nav>
+      </div>
+    </header>
+
+    <section id="panel-resumen" class="card" hidden>
+      <h2>Resumen</h2>
+      <div class="grid cols-3">
+        <div class="card">
+          <h2>Este mes</h2>
+          <div class="row"><span class="pill">Ingresos</span><strong id="mIncome" class="mono ok"></strong></div>
+          <div class="row"><span class="pill">Gastos</span><strong id="mExpense" class="mono bad"></strong></div>
+          <div class="row"><span class="pill">Balance</span><strong id="mBalance" class="mono"></strong></div>
+          <div class="hr"></div>
+          <label>Meta de ahorro sugerida</label>
+          <div class="progress"><span id="mSaveBar" style="width:0%"></span></div>
+          <div class="row"><small class="muted">Meta: <span id="mSaveGoal" class="mono"></span></small><small class="muted">Ahorro: <span id="mSaveNow" class="mono"></span></small></div>
+        </div>
+        <div class="card">
+          <h2>Esta semana</h2>
+          <div class="row"><span class="pill">Ingresos</span><strong id="wIncome" class="mono ok"></strong></div>
+          <div class="row"><span class="pill">Gastos</span><strong id="wExpense" class="mono bad"></strong></div>
+          <div class="row"><span class="pill">Balance</span><strong id="wBalance" class="mono"></strong></div>
+          <div class="hr"></div>
+          <label>Top categorías de gasto</label>
+          <div id="wCats"></div>
+        </div>
+        <div class="card">
+          <h2>Hoy</h2>
+          <div class="row"><span class="pill">Ingresos</span><strong id="tIncome" class="mono ok"></strong></div>
+          <div class="row"><span class="pill">Gastos</span><strong id="tExpense" class="mono bad"></strong></div>
+          <div class="row"><span class="pill">Neto</span><strong id="tBalance" class="mono"></strong></div>
+          <div class="hr"></div>
+          <label>Pagos mínimos de deudas</label>
+          <div class="row"><strong id="minDebt" class="mono"></strong><small class="muted">/ mes</small></div>
+        </div>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:12px">
+        <div class="card">
+          <h2>Ingresos vs Gastos (mes)</h2>
+          <canvas id="chartIG" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="row" style="justify-content:space-between">
+            <h2>Gasto por categoría (mes)</h2>
+            <div class="row">
+              <label class="muted">Presupuesto global (opcional):</label>
+              <input id="budgetInput" type="number" min="0" step="1000" placeholder="0" style="width:140px"/>
+              <button class="ghost" id="applyBudget">Aplicar</button>
+            </div>
+          </div>
+          <canvas id="chartCats" height="220"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-registrar" class="card" hidden>
+      <h2>Registrar movimiento</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <div class="row">
+            <button class="pill" id="type-expense">Gasto</button>
+            <button class="pill" id="type-income">Ingreso</button>
+            <span id="chosenType" class="pill" style="border-color:#334155">Tipo: Gasto</span>
+          </div>
+          <div class="grid cols-2" style="margin-top:10px">
+            <div><label>Fecha</label><input type="date" id="txDate"/></div>
+            <div><label>Método de pago</label><select id="txMethod"></select></div>
+            <div><label>Categoría</label><select id="txCategory"></select></div>
+            <div><label>Monto</label><input type="number" id="txAmount" min="0" step="100" placeholder="0"/></div>
+          </div>
+          <div class="grid cols-2" style="margin-top:10px">
+            <div><label>Descripción</label><input id="txDesc" placeholder="Ej: Arriendo, Sueldo, Mercado"/></div>
+            <div><label>Nota (opcional)</label><input id="txNote"/></div>
+          </div>
+          <div class="row">
+            <div class="muted">Atajos: <b>/</b> o <b>Ctrl+K</b> para buscar, <b>Enter</b> para guardar.</div>
+            <div class="row"><button id="saveTx" class="primary">Guardar</button><button id="clearTx" class="ghost">Limpiar</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Movimientos recientes</h2>
+          <div class="row" style="gap:6px">
+            <input id="search" placeholder="Buscar (desc, categoría, método)" />
+            <select id="filterType" style="max-width:140px">
+              <option value="all">Todos</option>
+              <option value="Gasto">Gastos</option>
+              <option value="Ingreso">Ingresos</option>
+            </select>
+            <input type="month" id="filterMonth" />
+            <button id="resetFilters" class="ghost">Quitar filtros</button>
+          </div>
+          <div id="txTotals"></div>
+          <div style="max-height:350px;overflow:auto;margin-top:10px">
+            <table id="txTable"></table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-deudas" class="card" hidden>
+      <h2>Deudas</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <div class="grid cols-2">
+            <div><label>Acreedor</label><input id="dbCreditor"/></div>
+            <div><label>Tipo</label><select id="dbType"><option>TC</option><option>Préstamo</option><option>Hipoteca</option><option>Otro</option></select></div>
+            <div><label>Monto adeudado</label><input id="dbAmount" type="number" min="0" step="1000"/></div>
+            <div><label>Tasa anual (%)</label><input id="dbAnnual" type="number" min="0" step="0.01"/></div>
+            <div><label>Pago mínimo mensual</label><input id="dbMin" type="number" min="0" step="1000"/></div>
+            <div><label>Fecha de corte</label><input id="dbCut" type="date"/></div>
+          </div>
+          <div class="row"><div></div><div class="row"><button id="saveDebt" class="primary">Agregar</button><button id="clearDebt" class="ghost">Limpiar</button></div></div>
+        </div>
+        <div class="card">
+          <h2>Listado</h2>
+          <div style="max-height:350px;overflow:auto;margin-top:8px"><table id="dbTable"></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-categorias" class="card" hidden>
+      <h2>Categorías & Métodos</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3 style="margin-top:0">Categorías</h3>
+          <div class="row"><input id="newCat" placeholder="Nueva categoría"/><button id="addCat" class="ghost">Agregar</button></div>
+          <div id="catList" style="margin-top:8px"></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Métodos de pago</h3>
+          <div class="row"><input id="newMethod" placeholder="Efectivo, Nequi, Bancolombia"/><button id="addMethod" class="ghost">Agregar</button></div>
+          <div id="methodList" style="margin-top:8px"></div>
+          <div class="hr"></div>
+          <label>Porcentaje de ahorro (%) y Moneda</label>
+          <div class="row">
+            <input id="savePct" type="number" min="0" max="100" step="1" style="max-width:120px"/> 
+            <input id="currencySym" placeholder="Ej: COP $" style="max-width:140px"/>
+            <button id="saveSettings" class="primary">Guardar ajustes</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-respaldo" class="card" hidden>
+      <h2>Respaldo / Importar</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3 style="margin-top:0">Exportar datos</h3>
+          <div class="row"><button id="exportJSON" class="primary">Descargar JSON</button><button id="exportCSV" class="ghost">Descargar CSV (movimientos)</button></div>
+          <p class="muted">Tus datos viven solo en este navegador (LocalStorage).</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Importar</h3>
+          <p class="muted">Importa un JSON exportado aquí o un CSV (Excel → “CSV UTF-8”).</p>
+          <div class="row"><input type="file" id="importFile" accept=".json,.csv"/><button id="importBtn" class="primary">Importar</button></div>
+          <div class="hr"></div>
+          <button id="resetAll" class="warn">Borrar TODO</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="muted" style="margin-top:12px">Funciona offline e instalable (PWA). Moneda predeterminada: COP $</footer>
+  </div>
+
+  <div id="updateBanner">
+    <div class="row"><strong>🔄 Nueva versión disponible</strong><span class="muted">— Actualiza para obtener las mejoras.</span></div>
+    <div class="row"><button id="reloadApp" class="primary">Actualizar</button><button id="dismissUpd" class="ghost">Luego</button></div>
+  </div>
+
+  <script src="./app.js?v=4.1.1" defer></script>
+</body>
+</html>
