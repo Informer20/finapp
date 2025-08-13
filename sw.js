@@ -1,12 +1,13 @@
 // Network-first con fallback y control de versiones
-const CACHE = 'finapp-pwa-v2';
+const CACHE = 'finapp-pwa-v3';
 const ASSETS = [
   './',
   './index.html',
-  './app.js?v=2',
+  './app.js?v=2.1',
   './manifest.webmanifest',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './favicon.ico'
 ];
 
 self.addEventListener('install', (e) => {

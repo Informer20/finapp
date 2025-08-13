@@ -6,6 +6,7 @@
   <title>FinApp: controla tus ingresos y gastos</title>
   <meta name="theme-color" content="#0f172a"/>
   <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./favicon.ico">
   <link rel="apple-touch-icon" href="./icon-192.png">
   <style>
     :root{
@@ -48,12 +49,10 @@
     .progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#16a34a)}
     .bar{height:8px;border-radius:6px;background:#0b1220;border:1px solid #1f2937;overflow:hidden}
     .bar>em{display:block;height:100%;background:linear-gradient(90deg,#22d3ee,#3b82f6)}
-    /* Update banner */
     #updateBanner{position:fixed;left:16px;right:16px;bottom:16px;background:#0b1220;border:1px solid #334155;border-radius:12px;padding:12px;display:none;align-items:center;justify-content:space-between;gap:12px;z-index:50;box-shadow:0 10px 40px rgba(0,0,0,.4)}
     #updateBanner.show{display:flex}
     .online-badge{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid #1f2937;background:#0b1220}
     .online{color:#22c55e} .offline{color:#ef4444}
-    /* Totals bar */
     #txTotals{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
     #txTotals .pill{background:#0b1220}
   </style>
@@ -69,7 +68,6 @@
       </div>
     </header>
 
-    <!-- Panels -->
     <section id="panel-resumen" class="card" hidden>
       <h2>Resumen</h2>
       <div class="grid cols-3">
@@ -80,7 +78,7 @@
           <div class="row"><span class="pill">Balance</span><strong id="mBalance" class="mono"></strong></div>
           <div class="hr"></div>
           <label>Meta de ahorro sugerida</label>
-          <div class="progress" title="Ahorro actual sobre meta"><span id="mSaveBar" style="width:0%"></span></div>
+          <div class="progress"><span id="mSaveBar" style="width:0%"></span></div>
           <div class="row"><small class="muted">Meta: <span id="mSaveGoal" class="mono"></span></small><small class="muted">Ahorro: <span id="mSaveNow" class="mono"></span></small></div>
         </div>
         <div class="card">
@@ -125,39 +123,18 @@
             <span id="chosenType" class="pill" style="border-color:#334155">Tipo: Gasto</span>
           </div>
           <div class="grid cols-2" style="margin-top:10px">
-            <div>
-              <label>Fecha</label>
-              <input type="date" id="txDate" />
-            </div>
-            <div>
-              <label>Método de pago</label>
-              <select id="txMethod"></select>
-            </div>
-            <div>
-              <label>Categoría</label>
-              <select id="txCategory"></select>
-            </div>
-            <div>
-              <label>Monto</label>
-              <input type="number" id="txAmount" min="0" step="100" placeholder="0" />
-            </div>
+            <div><label>Fecha</label><input type="date" id="txDate"/></div>
+            <div><label>Método de pago</label><select id="txMethod"></select></div>
+            <div><label>Categoría</label><select id="txCategory"></select></div>
+            <div><label>Monto</label><input type="number" id="txAmount" min="0" step="100" placeholder="0"/></div>
           </div>
           <div class="grid cols-2" style="margin-top:10px">
-            <div>
-              <label>Descripción</label>
-              <input id="txDesc" placeholder="Ej: Arriendo, Sueldo, Mercado" />
-            </div>
-            <div>
-              <label>Nota (opcional)</label>
-              <input id="txNote" />
-            </div>
+            <div><label>Descripción</label><input id="txDesc" placeholder="Ej: Arriendo, Sueldo, Mercado"/></div>
+            <div><label>Nota (opcional)</label><input id="txNote"/></div>
           </div>
           <div class="row">
             <div class="muted">Atajos: <b>/</b> o <b>Ctrl+K</b> para buscar, <b>Enter</b> para guardar.</div>
-            <div class="row">
-              <button id="saveTx" class="primary">Guardar</button>
-              <button id="clearTx" class="ghost">Limpiar</button>
-            </div>
+            <div class="row"><button id="saveTx" class="primary">Guardar</button><button id="clearTx" class="ghost">Limpiar</button></div>
           </div>
         </div>
         <div class="card">
@@ -187,10 +164,10 @@
           <div class="grid cols-2">
             <div><label>Acreedor</label><input id="dbCreditor" /></div>
             <div><label>Tipo</label><select id="dbType"><option>TC</option><option>Préstamo</option><option>Hipoteca</option><option>Otro</option></select></div>
-            <div><label>Monto adeudado</label><input id="dbAmount" type="number" min="0" step="1000" /></div>
-            <div><label>Tasa anual (%)</label><input id="dbAnnual" type="number" min="0" step="0.01" /></div>
-            <div><label>Pago mínimo mensual</label><input id="dbMin" type="number" min="0" step="1000" /></div>
-            <div><label>Fecha de corte</label><input id="dbCut" type="date" /></div>
+            <div><label>Monto adeudado</label><input id="dbAmount" type="number" min="0" step="1000"/></div>
+            <div><label>Tasa anual (%)</label><input id="dbAnnual" type="number" min="0" step="0.01"/></div>
+            <div><label>Pago mínimo mensual</label><input id="dbMin" type="number" min="0" step="1000"/></div>
+            <div><label>Fecha de corte</label><input id="dbCut" type="date"/></div>
           </div>
           <div class="row"><div></div><div class="row"><button id="saveDebt" class="primary">Agregar</button><button id="clearDebt" class="ghost">Limpiar</button></div></div>
         </div>
@@ -250,6 +227,6 @@
     <div class="row"><button id="reloadApp" class="primary">Actualizar</button><button id="dismissUpd" class="ghost">Luego</button></div>
   </div>
 
-  <script src="./app.js?v=2" defer></script>
+  <script src="./app.js?v=2.1" defer></script>
 </body>
 </html>
