@@ -22,6 +22,55 @@
   const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
   const escapeHtml=(s)=> (s==null?'':String(s)).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
 
+  // Convierte "YYYY-MM-DD" a Date en zona local (sin corrimiento a UTC)
+function parseLocalDate(s) {
+  if (!s) return new Date();
+  const [y, m, d] = s.split('-').map(n => parseInt(n, 10));
+  // Usamos el mediodía para esquivar bordes de DST
+  return new Date(y, m - 1, d, 12, 0, 0, 0);
+}
+
+  // Normaliza fechas variadas a "YYYY-MM-DD" (local)
+function normalizeDate(val) {
+  if (!val) return todayStr();
+  val = String(val).trim();
+
+  // Ya viene como YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
+
+  // dd/mm/yyyy o dd-mm-yyyy (formato habitual en ES)
+  let m = val.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (m) {
+    const [, d, mm, y] = m;
+    return `${y}-${String(mm).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  }
+
+  // mm/dd/yyyy o mm-dd-yyyy (por si viene en formato US)
+  m = val.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (m) {
+    let [, mm, d, y] = m;
+    if (String(y).length === 2) y = `20${y}`;
+    return `${y}-${String(mm).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  }
+
+  // Serial de Excel (días desde 1899-12-30)
+  if (/^\d{3,5}$/.test(val)) {
+    const serial = parseInt(val,10);
+    const base = new Date(1899, 11, 30);
+    base.setDate(base.getDate() + serial);
+    return `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(base.getDate()).padStart(2,'0')}`;
+  }
+
+  // Último intento: parsear y devolver en local
+  const d = new Date(val);
+  if (!isNaN(d)) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  return todayStr();
+}
+
+
   // === State ===
   const DEFAULTS={
     categories:["Fijos","Necesarios","Transporte","Alimentación","Salud","Educación","Ocio","Servicios","Otros","Sueldo","Honorarios","Comida","Banco de occidente"],
@@ -191,12 +240,15 @@
   });
 
   // === Resumen ===
-  function sumPeriod(start,end){
-    const tx = state.transactions.filter(t=>{ const d=new Date(t.date); return d>=start && d<=end; });
-    const income = tx.filter(t=>t.type==='Ingreso').reduce((a,b)=>a+b.amount,0);
-    const expense = tx.filter(t=>t.type==='Gasto').reduce((a,b)=>a+b.amount,0);
-    return {income, expense, balance: income-expense, list: tx};
-  }
+  function sumPeriod(start, end) {
+  const tx = state.transactions.filter(t => {
+    const d = parseLocalDate(t.date);
+    return d >= start && d <= end;
+  });
+  const income  = tx.filter(t => t.type === 'Ingreso').reduce((a,b)=>a+b.amount,0);
+  const expense = tx.filter(t => t.type === 'Gasto').reduce((a,b)=>a+b.amount,0);
+  return { income, expense, balance: income - expense, list: tx };
+}
   function renderResumen(){
     const now=new Date();
     const m = sumPeriod(startOfMonth(now), endOfMonth(now));
@@ -335,7 +387,7 @@
           const arr=parseCSV(e.target.result);
           const map=(row)=>({
             id:uid(),
-            date: row['Fecha']||row['fecha']||row['date']||row['Date']|| todayStr(),
+            date: normalizeDate(row['Fecha']||row['fecha']||row['date']||row['Date']),
             type: (row['Tipo']||row['type']||row['Type']||'Gasto').toString().toLowerCase().includes('ing')?'Ingreso':'Gasto',
             description: row['Descripción']||row['descripcion']||row['Description']||row['desc']||'',
             category: row['Categoría']||row['categoria']||row['Category']||'Otros',
