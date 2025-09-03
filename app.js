@@ -1,4 +1,3 @@
-
 (function(){
   'use strict';
 
@@ -20,7 +19,7 @@
   const startOfWeek=(d)=>{ const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; };
   const endOfWeek=(d)=>{const s=startOfWeek(d); const e=new Date(s); e.setDate(s.getDate()+6); e.setHours(23,59,59,999); return e;};
   const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
-  // Seguro para evitar el error de token inválido
+  // Seguro: evita el error de token inválido
   const escapeHtml=(s)=> (s==null?'':String(s)).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
 
   // Convierte "YYYY-MM-DD" a Date en zona local
@@ -49,6 +48,7 @@
     {key:'registrar', label:'Registrar'},
     {key:'deudas', label:'Deudas'},
     {key:'categorias', label:'Categorías'},
+    {key:'historico', label:'Histórico'},
     {key:'respaldo', label:'Respaldo'}
   ];
   const tabs=$('#tabs');
@@ -62,6 +62,7 @@
     if(key==='registrar'){ renderTxTable(); fillSelectors(); }
     if(key==='categorias'){ renderLists(); }
     if(key==='deudas'){ renderDebts(); }
+    if(key==='historico'){ renderHistorico(); }
   }
   tabs.addEventListener('click', e=>{ const b=e.target.closest('button.tab'); if(!b) return; show(b.dataset.key); });
   show('resumen');
@@ -70,6 +71,8 @@
   let currentType='Gasto';
   $('#type-expense').addEventListener('click',()=>{currentType='Gasto'; $('#chosenType').textContent='Tipo: Gasto'});
   $('#type-income').addEventListener('click',()=>{currentType='Ingreso'; $('#chosenType').textContent='Tipo: Ingreso'});
+  $('#type-saving').addEventListener('click',()=>{currentType='Ahorro'; $('#chosenType').textContent='Tipo: Ahorro'});
+  $('#type-invest').addEventListener('click',()=>{currentType='Inversión'; $('#chosenType').textContent='Tipo: Inversión'});
   $('#txDate').value = todayStr();
 
   function fillSelectors(){
@@ -116,7 +119,8 @@
 
     let html = `<tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Categoría</th><th>Método</th><th class='right'>Monto</th><th></th></tr>`;
     rows.forEach(r=>{
-      const sign = r.type==='Gasto'?-1:1;
+      const negativeTypes = new Set(['Gasto','Ahorro','Inversión']);
+      const sign = negativeTypes.has(r.type)? -1 : 1;
       html += `<tr data-id="${r.id}">
         <td data-k="date">${escapeHtml(r.date)}</td>
         <td data-k="type"><span class="pill">${escapeHtml(r.type)}</span></td>
@@ -153,7 +157,12 @@
       const get = (k)=> tr.querySelector(`[data-k="${k}"]`);
       const obj = state.transactions.find(t=>t.id===id);
       get('date').innerHTML = `<input type="date" value="${escapeHtml(obj.date)}">`;
-      get('type').innerHTML = `<select><option ${obj.type==='Gasto'?'selected':''}>Gasto</option><option ${obj.type==='Ingreso'?'selected':''}>Ingreso</option></select>`;
+      get('type').innerHTML = `<select>
+        <option ${obj.type==='Gasto'?'selected':''}>Gasto</option>
+        <option ${obj.type==='Ingreso'?'selected':''}>Ingreso</option>
+        <option ${obj.type==='Ahorro'?'selected':''}>Ahorro</option>
+        <option ${obj.type==='Inversión'?'selected':''}>Inversión</option>
+      </select>`;
       get('description').innerHTML = `<input value="${escapeHtml(obj.description)}">`;
       get('category').innerHTML = `<input value="${escapeHtml(obj.category)}">`;
       get('method').innerHTML = `<input value="${escapeHtml(obj.method)}">`;
@@ -184,8 +193,10 @@
       return d >= start && d <= end;
     });
     const income  = tx.filter(t => t.type === 'Ingreso').reduce((a,b)=>a+b.amount,0);
-    const expense = tx.filter(t => t.type === 'Gasto').reduce((a,b)=>a+b.amount,0);
-    return { income, expense, balance: income - expense, list: tx };
+    const gasto   = tx.filter(t => t.type === 'Gasto').reduce((a,b)=>a+b.amount,0);
+    const saving  = tx.filter(t => t.type === 'Ahorro' || t.type === 'Inversión').reduce((a,b)=>a+b.amount,0);
+    const outflow = gasto + saving;
+    return { income, expense: gasto, savings: saving, outflow, balance: income - outflow, list: tx };
   }
   function renderResumen(){
     const now=new Date();
@@ -208,7 +219,7 @@
     $('#minDebt').textContent=fmtMoney(min);
 
     const goal = (state.savePercent/100)*(m.income||0);
-    const current = Math.max(0, m.income - m.expense);
+    const current = Math.max(0, m.savings||0); // Ahorro real: ahorro + inversión
     $('#mSaveGoal').textContent=fmtMoney(goal);
     $('#mSaveNow').textContent=fmtMoney(current);
     const pct = goal? Math.min(100, Math.round(100*current/goal)) : 0;
@@ -220,7 +231,7 @@
     $('#wCats').innerHTML = items.length? items.map(([c,v])=>`<div class='row'><span class='pill'>${escapeHtml(c)}</span><strong class='mono bad'>${fmtMoney(v)}</strong></div>`).join('') : '<span class="muted">Sin datos</span>';
   }
 
-  // === Charts ===
+  // === Charts (mes) ===
   function makeCanvas(id){
     const canvas=$(id); if(!canvas) return {};
     const parent=canvas.parentElement;
@@ -256,13 +267,15 @@
   function drawCharts(){
     const now=new Date();
     const m = sumPeriod(startOfMonth(now), endOfMonth(now));
+    // Ingresos vs Egresos (incluye ahorro + inversión)
     (function(){
       const c = makeCanvas('#chartInOut'); if(!c.ctx) return;
-      drawBars(c.ctx,c.w,c.h,[m.income,m.expense],['Ingresos','Gastos'],'#ef4444',['#22c55e','#ef4444']);
+      drawBars(c.ctx,c.w,c.h,[m.income,m.outflow],['Ingresos','Egresos'],'#ef4444',['#22c55e','#ef4444']);
     })();
+    // Gasto por categoría (sólo Gastos del mes)
     (function(){
       const c = makeCanvas('#chartByCat'); if(!c.ctx) return;
-      const byCat={}; const mlist = sumPeriod(startOfMonth(now), endOfMonth(now)).list;
+      const byCat={}; const mlist = m.list;
       mlist.filter(x=>x.type==='Gasto').forEach(x=>{ byCat[x.category]=(byCat[x.category]||0)+x.amount; });
       const entries = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,6);
       const vals = entries.map(x=>x[1]); const labs = entries.map(x=>x[0]||'—');
@@ -313,6 +326,44 @@
     $('#dbTable').innerHTML=html;
   }
 
+  // === Histórico ===
+  function getMonthRange(ym){ // ym = 'YYYY-MM' or ''
+    if(!ym) return {start: new Date(1970,0,1,0,0,0,0), end: new Date(3000,0,1,0,0,0,0)};
+    const [y,m] = ym.split('-').map(x=>parseInt(x,10));
+    const start = new Date(y, m-1, 1, 0,0,0,0);
+    const end   = new Date(y, m, 0, 23,59,59,999);
+    return {start,end};
+  }
+  function renderHistorico(){
+    const ym = $('#histMonth').value || '';
+    const {start,end} = getMonthRange(ym);
+
+    // Incomes / Outflows
+    const agg = sumPeriod(start,end);
+    (function(){
+      const c = makeCanvas('#histChartInOut'); if(!c.ctx) return;
+      drawBars(c.ctx,c.w,c.h,[agg.income, agg.outflow],['Ingresos','Egresos'],'#ef4444',['#22c55e','#ef4444']);
+    })();
+
+    // Top categories (Gasto only)
+    (function(){
+      const c = makeCanvas('#histChartCats'); if(!c.ctx) return;
+      const byCat={};
+      state.transactions.forEach(t=>{
+        const d=parseLocalDate(t.date);
+        if(d>=start && d<=end && t.type==='Gasto'){
+          byCat[t.category]=(byCat[t.category]||0)+t.amount;
+        }
+      });
+      const entries = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,8);
+      const vals = entries.map(x=>x[1]); const labs = entries.map(x=>x[0]||'—');
+      const palette=['#60a5fa','#a78bfa','#f472b6','#f59e0b','#10b981','#f87171','#34d399','#fbbf24'];
+      drawBars(c.ctx,c.w,c.h, vals.length?vals:[0], vals.length?labs:['—'], '#3b82f6', palette);
+    })();
+  }
+  $('#histMonth').addEventListener('change', renderHistorico);
+  $('#histClear').addEventListener('click', ()=>{ $('#histMonth').value=''; renderHistorico(); });
+
   // === Respaldo / Importar ===
   function download(filename, text){
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text], {type:'application/octet-stream'})); a.download=filename; a.click(); URL.revokeObjectURL(a.href);
@@ -323,12 +374,12 @@
   $('#exportCSV').addEventListener('click', ()=>{
     const hdr=['date','type','description','category','method','amount','note'];
     const rows = [hdr.join(',')].concat(state.transactions.map(t=> hdr.map(k=>`"${String(t[k]??'').replace(/"/g,'""')}"`).join(',')));
-    download(`movimientos_${new Date().toISOString().slice(0,10)}.csv`, rows.join('\\n'));
+    download(`movimientos_${new Date().toISOString().slice(0,10)}.csv`, rows.join('\n'));
   });
   function parseCSV(text){
     const sep = text.indexOf(';')>-1?';':',';
-    const lines = text.split(/\\r?\\n/).filter(Boolean);
-    const headers = lines.shift().split(sep).map(h=>h.trim().replace(/^"|"$|^\\uFEFF/g,''));
+    const lines = text.split(/\r?\n/).filter(Boolean);
+    const headers = lines.shift().split(sep).map(h=>h.trim().replace(/^"|"$|^\uFEFF/g,''));
     return lines.map(line=>{
       const cells=[]; let cur=''; let q=false;
       for(let i=0;i<line.length;i++){
@@ -355,7 +406,9 @@
           const map=(row)=>({
             id:uid(),
             date: row['Fecha']||row['fecha']||row['date']||row['Date']|| todayStr(),
-            type: (row['Tipo']||row['type']||row['Type']||'Gasto').toString().toLowerCase().includes('ing')?'Ingreso':'Gasto',
+            type: (row['Tipo']||row['type']||row['Type']||'Gasto').toString().toLowerCase().includes('ing')?'Ingreso':
+                  (row['Tipo']||row['type']||row['Type']||'Gasto').toString().toLowerCase().includes('aho')?'Ahorro':
+                  (row['Tipo']||row['type']||row['Type']||'Gasto').toString().toLowerCase().includes('inv')?'Inversión':'Gasto',
             description: row['Descripción']||row['descripcion']||row['Description']||row['desc']||'',
             category: row['Categoría']||row['categoria']||row['Category']||'Otros',
             method: row['Método de pago']||row['Metodo']||row['method']||'Efectivo',

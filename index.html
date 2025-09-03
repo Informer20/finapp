@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -50,7 +49,6 @@
     .progress{height:10px;background:#0b1220;border-radius:999px;border:1px solid #1f2937;overflow:hidden}
     .progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#16a34a)}
     .hint{font-size:12px;color:#a3a3a3}
-    /* Sticky actions on narrow screens so the save buttons are always reachable */
     @media (max-width: 480px){
       h1{font-size:22px}
       .wrap{padding:12px}
@@ -68,7 +66,7 @@
       <nav class="tabs" id="tabs"></nav>
     </header>
 
-    <!-- Panels -->
+    <!-- Resumen -->
     <section id="panel-resumen" class="card" hidden>
       <h2>Resumen</h2>
       <div class="grid cols-3">
@@ -108,6 +106,7 @@
       <div class="card" style="margin-top:12px">
         <h2>Ingresos vs Gastos (mes)</h2>
         <div style="height:260px"><canvas id="chartInOut"></canvas></div>
+        <small class="hint">* Los egresos incluyen Gastos + Ahorro + Inversión.</small>
       </div>
 
       <div class="card" style="margin-top:12px">
@@ -123,6 +122,7 @@
       </div>
     </section>
 
+    <!-- Registrar -->
     <section id="panel-registrar" class="card" hidden>
       <h2>Registrar movimiento</h2>
       <div class="grid cols-2">
@@ -130,6 +130,8 @@
           <div class="row">
             <button class="pill" id="type-expense">Gasto</button>
             <button class="pill" id="type-income">Ingreso</button>
+            <button class="pill" id="type-saving">Ahorro</button>
+            <button class="pill" id="type-invest">Inversión</button>
             <span id="chosenType" class="pill" style="border-color:#334155">Tipo: Gasto</span>
           </div>
           <div class="grid cols-2" style="margin-top:10px">
@@ -171,10 +173,12 @@
           <h2>Movimientos recientes</h2>
           <div class="row" style="gap:6px">
             <input id="search" placeholder="Buscar (desc, categoría, método)" />
-            <select id="filterType" style="max-width:140px">
+            <select id="filterType" style="max-width:160px">
               <option value="all">Todos</option>
               <option value="Gasto">Gastos</option>
               <option value="Ingreso">Ingresos</option>
+              <option value="Ahorro">Ahorro</option>
+              <option value="Inversión">Inversión</option>
             </select>
             <input type="month" id="filterMonth" />
             <button id="resetFilters" class="ghost">Quitar filtros</button>
@@ -186,6 +190,7 @@
       </div>
     </section>
 
+    <!-- Deudas -->
     <section id="panel-deudas" class="card" hidden>
       <h2>Deudas</h2>
       <div class="grid cols-2">
@@ -237,6 +242,7 @@
       </div>
     </section>
 
+    <!-- Categorías -->
     <section id="panel-categorias" class="card" hidden>
       <h2>Categorías & Métodos</h2>
       <div class="grid cols-2">
@@ -265,6 +271,29 @@
       </div>
     </section>
 
+    <!-- Histórico -->
+    <section id="panel-historico" class="card" hidden>
+      <h2>Resumen histórico</h2>
+      <div class="row" style="gap:8px;margin-bottom:8px">
+        <label class="muted">Filtrar por mes (opcional):</label>
+        <input type="month" id="histMonth" />
+        <button id="histClear" class="ghost">Ver todo</button>
+      </div>
+
+      <div class="card" style="margin-top:8px">
+        <h2>Top categorías de gasto (histórico)</h2>
+        <div style="height:300px"><canvas id="histChartCats"></canvas></div>
+        <small class="hint">* Calculado sólo con movimientos de tipo Gasto.</small>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h2>Ingresos vs Gastos (histórico)</h2>
+        <div style="height:260px"><canvas id="histChartInOut"></canvas></div>
+        <small class="hint">* Los egresos incluyen Gastos + Ahorro + Inversión.</small>
+      </div>
+    </section>
+
+    <!-- Respaldo -->
     <section id="panel-respaldo" class="card" hidden>
       <h2>Respaldo / Importar</h2>
       <div class="grid cols-2">

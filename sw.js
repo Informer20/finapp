@@ -1,5 +1,4 @@
-
-const CACHE = 'finapp-v4.1.5';
+const CACHE = 'finapp-v4.2.0';
 const ASSETS = [
   './','./index.html','./app.js','./manifest.webmanifest',
   './icon-192.png','./icon-512.png','./favicon.ico'
